@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>review Notes</title>
+    <link rel="stylesheet" href="/styles/main.css">
+</head>
+<body>
+    <!-- Header -->
+    <%- include("partials/header.ejs") %>
+    <!-- Form for sorting-->
+    <h3>Order By:</h3>
+    <form id="sortform" action="/sort" method="POST">
+        <!-- Sort by field-->
+        <select name="field" id="field">
+            <option value="" disabled selected hidden>Field</option>
+            <option value="id">ID</option>
+            <option value="date">Date</option>
+            <option value="title">Title</option>
+        </select>
+        <!-- Sort order-->
+        <select name="order" id="order">
+            <option value="" disabled selected hidden>Order</option>
+            <option value="asc">Ascending</option>
+            <option value="desc">Descending</option>
+        </select>
+        <!-- Sort button-->
+        <button id="sort">Sort</button>
+    </form>
+
+    <!-- All reviews -->
+    <div class="review-container">
+        <% if(locals.reviews) { %>
+            <% reviews.forEach(review => {%>
+                <div class="review">
+                    <div class="reviewbody">
+                        <img src="<%= review.image %>" alt="Book Cover" />
+                        <div class="info">
+                            <a class="review-title" href="/review/<%= review.id %>"><h2><%= review.title %></h2></a>
+                            <p>ISBN: <%= review.isbn %></p>
+                            <p>Date Added: <%= review.date.toDateString().slice(4) %></p>
+                        </div>
+                    </div>
+                    <p><%= review.description %></p>
+                    <a href="/review/<%= review.id %>"><p class="text"><strong>Read notes</strong></a> or go to <a href="https://www.amazon.co.uk/s?k=<%=review.isbn%>&linkCode=gs3&tag=sivers0d-21">amazon page</p></a>
+                </div>
+                
+            <% }); %>
+        <% } %>
+    </div>
+
+    <!-- Script for sorting -->
+    <script>
+        document.getElementById('sortform').addEventListener('submit', function(event) {
+            const field = document.getElementById('field').value;
+            const order = document.getElementById('order').value;
+    
+            if (field === "" || order === "") {
+                event.preventDefault();
+            }
+        });
+    </script>
+</body>
+</html>

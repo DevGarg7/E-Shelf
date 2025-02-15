@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Profile</title>
+    <link rel="stylesheet" href="/styles/main.css">
+</head>
+<body>
+    <!-- Header -->
+    <%- include("partials/header.ejs") %>
+    <div class="profileBody">
+        <h1>Profile</h1>
+        <label for="name"><strong>Name</strong></label>
+        <p id="name" name="name"><%= locals.user.name%></p>
+        <label for="email"><strong>Email</strong></label>
+        <p id="email" name="email"><%= locals.user.email%></p>
+        <div class="buttons">
+            <button id="changePasswordButton" href="#popup" name="modal">Change Password</button>
+            <button id="deleteAccountButton" href="#popup" name="modal2">Delete Account</button>
+            <form id="logoutForm" action="/logout" method="POST"><button>Logout</button></form>
+        </div>
+        <p><%= locals.error%></p>
+        <% if(locals.reviews) {%>
+            <h2>Reviews</h2>
+            <ul>
+                <% for(var i = 0; i < locals.reviews.length; i++) {%>
+                    <li>
+                        <a href="/review/<%= locals.reviews[i].id %>"><%= locals.reviews[i].title %></a>
+                    </li>
+
+                <% } %>
+            </ul>
+        <% } %>
+    </div>
+
+    <div id="passwordModal" class="modal">
+        <div id="popup" class="modal-content">
+            <!--Modal haeding-->
+            <h2>Change Password</h2>
+            <!-- Form for review info -->
+            <form action="/changePassword" method="POST" class="reviewform">
+                <div class="label">
+                    <label for="password">Password</label>
+                    <input type="password" name="password" id="password" required>
+                </div>
+                <div class="label">
+                    <label for="password2">Confirm Password</label>
+                    <input type="password" name="password2" id="password2" required>
+                </div>
+                <input class="button change" type="submit" value="Change">
+                <a class="button close" id="cancelbutton" href="#">Close</a>
+            </form>
+        </div>
+    </div>
+    <div id="deleteModal" class="modal">
+        <div id="popup" class="modal-content">
+            <!--Modal haeding-->
+            <h2>Are you sure you want to delete your account?</h2>
+            <!-- Form for review info -->
+            <form action="/deleteAccount" method="POST" class="reviewform">
+                <input class="button delete" type="submit" value="Delete">
+                <a class="button close" id="cancelbutton2" href="#">Close</a>
+            </form>
+        </div>
+    </div>
+    <script>
+        // Get the modal
+        var passwordmodal = document.getElementById("passwordModal");
+
+        // Get the button that opens the modal
+        var changePasswordbtn = document.getElementById("changePasswordButton");
+
+        // Get the <span> element that closes the modal
+        var cancelbutton = document.getElementById("cancelbutton");
+
+        // When the user clicks on the button, open the modal
+        changePasswordbtn.onclick = function() {
+            passwordmodal.style.display = "block";
+        }
+
+        // When the user clicks on cancel, close the modal
+        cancelbutton.onclick = function() {
+            passwordmodal.style.display = "none";
+        }
+
+        var deletemodal = document.getElementById("deleteModal");
+
+        var deletebutton = document.getElementById("deleteAccountButton");
+
+        var canceldelete = document.getElementById("cancelbutton2");
+
+        deletebutton.onclick = function() {
+            deletemodal.style.display = "block";
+        }
+
+        canceldelete.onclick = function() {
+            deletemodal.style.display = "none";
+        }
+
+    </script>
+</body>
+</html>

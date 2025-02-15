@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title><%= review.title %></title>
+  </head>
+  <body>
+    <!-- Header-->
+    <%- include("partials/header.ejs") %>
+
+    <!-- Review info-->
+    <h1><%= review.title %></h1>
+    <img src="<%= review.image %>" alt="Book Cover" />
+    <p><%= review.description %></p>
+    <p>ISBN: <%= review.isbn %></p>
+    <p>Notes: <%= review.notes %></p>
+    <% if(locals.user.id == review.user_id) {%>
+    <div class="editButtons">
+      <a href="/"><button>Back</button></a>
+      <button id="editButton">Edit</button>
+      <form method="post" action="/delete/<%= review.id %>">
+        <button>Delete</button>
+      </form>
+    </div>
+    <% } %>
+    <!-- If error is passed to the view, display it-->
+    <% if(locals.error) {%>
+    <p class="errorlbl"><%=error%></p>
+    <% } %>
+
+    <!-- Modal for editing a review-->
+    <div id="editModal" class="modal">
+      <div id="popup" class="modal-content">
+        <!--Modal haeding-->
+        <h2>Edit Review</h2>
+        <!-- Form for review info -->
+        <form method="POST" action="/edit/<%= review.id %>" class="reviewform">
+          <div class="label">
+            <label for="title">Title</label>
+            <textarea
+              name="title"
+              id="title"
+              value="<%= review.title %>"
+              required
+            ></textarea>
+          </div>
+          <div class="label">
+            <label for="description">Description</label>
+            <textarea name="description" id="description" required>
+<%= review.description %></textarea
+            >
+          </div>
+          <div class="label">
+            <label for="notes">Notes</label>
+            <textarea name="notes" id="notes"> <%= review.notes%></textarea>
+          </div>
+          <div class="label">
+            <label for="isbn">ISBN</label>
+            <input
+              type="text"
+              name="isbn"
+              id="image"
+              value="<%= review.isbn %>"
+              required
+            />
+          </div>
+          <button class="button" type="submit">Confirm</button>
+          <a class="button close" id="cancel" href="#">Close</a>
+        </form>
+      </div>
+    </div>
+
+    <!-- Script for opening the modal -->
+    <script>
+      var editmodal = document.getElementById("editModal");
+      var button = document.getElementById("editButton");
+      var cancel = document.getElementById("cancel");
+
+      button.onclick = function () {
+        editmodal.style.display = "block";
+      };
+
+      cancel.onclick = function () {
+        editmodal.style.display = "none";
+      };
+    </script>
+  </body>
+</html>
