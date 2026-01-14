@@ -1,156 +1,164 @@
 /* Header */
-.header{
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    width: auto 100%;
-    border-bottom: 1px solid black;
-    text-align: center;
-    padding-bottom: 2vh;
+.header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: auto 100%;
+  border-bottom: 1px solid black;
+  text-align: center;
+  padding-bottom: 2vh;
 }
-.header h1{
-    flex: 1;
-    margin: 0;
-    text-align: center;
+.header h1 {
+  flex: 1;
+  margin: 0;
+  text-align: center;
 }
-.image{
-    width: 50px;
-    height: 50px;
-    transition: transform 0.3s ;
+.image {
+  width: 50px;
+  height: 50px;
+  transition: transform 0.3s;
 }
-.image:hover{
-    cursor: pointer;
-    transform: scale(1.05);
+.image:hover {
+  cursor: pointer;
+  transform: scale(1.05);
 }
 /* The Modal (background) */
 .modal {
-    display: none; /* Hidden by default */
-    position: fixed; /* Stay in place */
-    z-index: 1; /* Sit on top */
-    left: 0;
-    top: 0;
-    width: 100%; /* Full width */
-    height: 100%; /* Full height */
-    overflow: auto; /* Enable scroll if needed */
-    background-color: rgb(0,0,0); /* Fallback color */
-    background-color: rgba(0,0,0,0.4); /* Black w/ opacity */
-    text-align: center;
-  }
-  
-  /* Modal Content/Box */
-  .modal-content {
-    background-color: #fefefe;
-    margin: 15% auto; /* 15% from the top and centered */
-    padding: 20px;
-    border: 1px solid #888;
-    width: fit-content;
-    max-width: 80%; /* Could be more or less, depending on screen size */
-    box-sizing: border-box;
+  display: none; /* Hidden by default */
+  position: fixed; /* Stay in place */
+  z-index: 1; /* Sit on top */
+  left: 0;
+  top: 0;
+  width: 100%; /* Full width */
+  height: 100%; /* Full height */
+  overflow: auto; /* Enable scroll if needed */
+  background-color: rgb(0, 0, 0); /* Fallback color */
+  background-color: rgba(0, 0, 0, 0.4); /* Black w/ opacity */
+  text-align: center;
 }
-  /* Modal Content Form */
-  .reviewform{
-    width: 100%;
-    display: flex;
-    flex-direction: row;
-    gap: 1em;
-  }
-  .review-title{
-    color: black;
-    text-decoration: none;
-  }
-  .review-title:hover{
-    cursor: pointer;
-    color: blue;
-    transform: scale(1.05);
-  }
-  .reviewform>.button{
-    align-self: center;
-    height: min-content;
-  }
-  .label{
-    display: flex;
-    flex-direction: column;
-  }
-  .text>a{
-    color: blue;
-  }
 
-  /* The Close Button */
-  .close {
-    color: #aaa;
-    float: right;
-    font-size: 28px;
-    font-weight: bold;
-  }
-  
-  .close:hover,
-  .close:focus {
-    color: black;
-    text-decoration: none;
-    cursor: pointer;
-  }
+/* Modal Content/Box */
+.modal-content {
+  background-color: #fefefe;
+  margin: 15% auto; /* 15% from the top and centered */
+  padding: 20px;
+  border: 1px solid #888;
+  width: fit-content;
+  max-width: 80%; /* Could be more or less, depending on screen size */
+  box-sizing: border-box;
+}
+/* Modal Content Form */
+.reviewform {
+  width: 100%;
+  display: flex;
+  flex-direction: row;
+  gap: 1em;
+}
+.review-title {
+  color: black;
+  text-decoration: none;
+}
+.review-title:hover {
+  cursor: pointer;
+  color: blue;
+  transform: scale(1.05);
+}
+.reviewform > .button {
+  align-self: center;
+  height: min-content;
+}
+.label {
+  display: flex;
+  flex-direction: column;
+}
+.text > a {
+  color: blue;
+}
 
-  .reviewbody{
-    display: flex;
-    flex-direction: row;
-    gap: 10px;
-  }
-  .reviewbody>img{
-    border: 2px solid black;
-  }
-  
-  .info{
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-  }
+/* The Close Button */
+.close {
+  color: #aaa;
+  float: right;
+  font-size: 28px;
+  font-weight: bold;
+}
 
-  .review{
+.close:hover,
+.close:focus {
+  color: black;
+  text-decoration: none;
+  cursor: pointer;
+}
+
+.reviewbody {
+  display: flex;
+  flex-direction: row;
+  gap: 10px;
+}
+.reviewbody > img {
+  border: 2px solid black;
+}
+
+.info {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.review {
+  display: block;
+  width: 30%;
+  margin: auto;
+  margin-top: 4%;
+  border-bottom: 1px solid black;
+}
+.editButtons {
+  display: flex;
+  flex-direction: row;
+  gap: 10px;
+  margin-top: 2%;
+}
+textarea {
+  height: 10rem;
+  resize: none;
+}
+
+/* Login and register forms */
+#loginform,
+#registerform {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 10px;
+  margin-top: 20vh;
+  margin-bottom: 30vh;
+}
+
+/*Profile page*/
+.profileBody {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+.buttons {
+  display: flex;
+  flex-direction: row;
+  gap: 10px;
+  margin-top: 2%;
+  margin-top: 2%;
+}
+
+.review img {
+  width: 120px;
+  height: 180px;
+  object-fit: cover;
+  border-radius: 4px;
+  flex-shrink: 0;
+}
+
+/* Responsiveness for modals */
+@media screen and (max-width: 1100px) {
+  .reviewform {
     display: block;
-    width: 30%;
-    margin: auto;
-    margin-top: 4%;
-    border-bottom: 1px solid black;
   }
-  .editButtons{
-    display: flex;
-    flex-direction: row;
-    gap: 10px;
-    margin-top: 2%;
-  }
-  textarea{
-    height: 10rem;
-    resize: none;
-  }
-
-  /* Login and register forms */
-  #loginform, #registerform{
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    gap: 10px;
-    margin-top: 20vh;
-    margin-bottom: 30vh;
-  }
-
-  /*Profile page*/
-  .profileBody{
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-  }
-  .buttons{
-    display: flex;
-    flex-direction: row;
-    gap: 10px;
-    margin-top: 2%;
-    margin-top: 2%;
-  }
-
-
-  /* Responsiveness for modals */
-  @media screen and (max-width: 1100px) {
-    .reviewform{
-        display:block;
-    }
-  }
+}

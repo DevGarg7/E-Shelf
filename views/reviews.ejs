@@ -15,7 +15,7 @@
     <p><%= review.description %></p>
     <p>ISBN: <%= review.isbn %></p>
     <p>Notes: <%= review.notes %></p>
-    <% if(locals.user.id == review.user_id) {%>
+    <% if (locals.user && locals.user.id === review.user_id) { %>
     <div class="editButtons">
       <a href="/"><button>Back</button></a>
       <button id="editButton">Edit</button>

@@ -36,6 +36,18 @@ app.use(express.static("public"));
 app.use(passport.initialize());
 app.use(passport.session());
 
+app.use((req, res, next) => {
+  res.locals.user = req.user;
+  next();
+});
+
+function ensureAuthenticated(req, res, next) {
+  if (req.isAuthenticated()) {
+    return next();
+  }
+  res.redirect("/login");
+}
+
 //database details
 const db = new pg.Client({
   user: "postgres",
@@ -137,14 +149,10 @@ async function getUserReviews(user_id) {
 
 //function to create user
 async function createUser(name, email, password) {
-  try {
-    await db.query(
-      "INSERT INTO users(name, email, password) VALUES ($1,$2,$3)",
-      [name, email, password]
-    );
-  } catch (err) {
-    console.log("Unable to create user, " + err);
-  }
+  await db.query(
+    "INSERT INTO users(username, email, password) VALUES ($1,$2,$3)",
+    [name, email, password]
+  );
 }
 
 //function to delete user
@@ -202,24 +210,23 @@ async function getImage(isbn) {
 }*/
 
 //load main page
-app.get("/", async (req, res) => {
-  let reviews = await getReviews();
+app.get("/", ensureAuthenticated, async (req, res) => {
+  const reviews = await getUserReviews(req.user.id);
   res.render("index.ejs", {
-    reviews: reviews.rows,
-    user: req.user,
+    reviews: reviews,
   });
 });
 
 //load individual review page
-app.get("/review/:id", async (req, res) => {
-  let id = req.params.id;
-  console.log(id);
-  let review = await getReview(id);
-  console.log(req.user);
+app.get("/review/:id", ensureAuthenticated, async (req, res) => {
+  const review = await getReview(req.params.id);
+
+  if (!review || review.user_id !== req.user.id) {
+    return res.status(403).send("Access denied");
+  }
+
   res.render("reviews.ejs", {
-    id: id,
     review: review,
-    user: req.user,
   });
 });
 
@@ -276,7 +283,7 @@ app.post("/register", async (req, res) => {
         } else {
           console.log("Hashed password:", hash); // Add this line
           const result = await db.query(
-            "INSERT INTO users (name, email, password) VALUES ($1, $2, $3) RETURNING *",
+            "INSERT INTO users (username, email, password) VALUES ($1, $2, $3) RETURNING *",
             [name, email, hash]
           );
           const user = result.rows[0];
@@ -410,35 +417,31 @@ app.post("/sort", async (req, res) => {
 });
 
 //delete specific post
-app.post("/delete/:id", (req, res) => {
-  let id = req.params.id;
-  console.log(id);
-  try {
-    deleteReview(id);
-    res.redirect("/");
-  } catch (err) {
-    console.log(err);
-    let error = "Unable to delete post " + err;
-    res.redirect(`/review/${id}`, {
-      error: error,
-    });
+app.post("/delete/:id", ensureAuthenticated, async (req, res) => {
+  const review = await getReview(req.params.id);
+
+  if (review.user_id !== req.user.id) {
+    return res.status(403).send("Unauthorized");
   }
+
+  await deleteReview(req.params.id);
+  res.redirect("/");
 });
 
 //edit specific psot function
-app.post("/edit/:id", async (req, res) => {
-  let id = req.params.id;
-  let title = req.body.title;
-  let description = req.body.description;
-  let notes = req.body.notes;
-  let isbn = req.body.isbn;
-  let image = await getImage(isbn);
-  try {
-    await editReview(title, description, notes, isbn, image, id);
-    res.redirect(`/review/${id}`);
-  } catch (err) {
-    console.log(err);
+//edit specific post (OWNER ONLY)
+app.post("/edit/:id", ensureAuthenticated, async (req, res) => {
+  const review = await getReview(req.params.id);
+
+  if (!review || review.user_id !== req.user.id) {
+    return res.status(403).send("Unauthorized");
   }
+
+  const { title, description, notes, isbn } = req.body;
+  const image = await getImage(isbn);
+
+  await editReview(title, description, notes, isbn, image, req.params.id);
+  res.redirect(`/review/${req.params.id}`);
 });
 
 //authenticating session
@@ -535,13 +538,19 @@ passport.use(
 
 // Serialize and deserialize user
 passport.serializeUser((user, cb) => {
-  console.log("Serializing user:", user);
-  cb(null, user);
+  cb(null, user.id);
 });
 
-passport.deserializeUser((user, cb) => {
-  console.log("Deserializing user:", user);
-  cb(null, user);
+passport.deserializeUser(async (id, cb) => {
+  try {
+    const result = await db.query(
+      "SELECT id, username, email FROM users WHERE id = $1",
+      [id]
+    );
+    cb(null, result.rows[0]);
+  } catch (err) {
+    cb(err);
+  }
 });
 
 // User login route
