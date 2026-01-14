@@ -8,11 +8,6 @@ import passport from "passport";
 import { Strategy } from "passport-local";
 import bcrypt, { compareSync } from "bcrypt";
 
-//before running run node on terminal and install required packages
-// Dev - S&K7&7&ds
-// saksji - soneKichidia1234
-// kirmada - qwerty
-
 const app = express();
 const port = 3000;
 const saltRounds = 5;
@@ -61,21 +56,22 @@ const db = new pg.Client({
 db.connect();
 
 //function to sort reviews
-async function sortReviews(field, order) {
-  try {
-    // Validate field and order
-    const validFields = ["id", "date", "title"];
-    const validOrders = ["asc", "desc"];
-    if (!validFields.includes(field) || !validOrders.includes(order)) {
-      throw new Error("Invalid sorting parameters");
-    }
-    let reviews = await db.query(
-      `SELECT * FROM reviews ORDER BY ${field} ${order.toUpperCase()}`
-    );
-    return reviews;
-  } catch (err) {
-    console.log(err);
+async function sortReviews(user_id, field, order) {
+  const validFields = ["id", "date", "title"];
+  const validOrders = ["asc", "desc"];
+
+  if (!validFields.includes(field) || !validOrders.includes(order)) {
+    throw new Error("Invalid sorting parameters");
   }
+
+  const result = await db.query(
+    `SELECT * FROM reviews 
+     WHERE user_id = $1
+     ORDER BY ${field} ${order.toUpperCase()}`,
+    [user_id]
+  );
+
+  return result.rows;
 }
 
 //function to add review
@@ -183,31 +179,12 @@ async function changePassword(email, password) {
 //function to get book cover image
 async function getImage(isbn) {
   try {
-    /*const response = await axios.get(`https://covers.openlibrary.org/b/isbn/${isbn}-M.jpg`);
-        console.log(response.data);
-        return JSON.parse(response.data);*/
     return `https://covers.openlibrary.org/b/isbn/${isbn}-M.jpg`;
   } catch (err) {
     console.log("Unable to generate image, " + err);
     return null;
   }
 }
-
-//let user;
-
-//function to log in user still need to finish this part
-/*async function login(email, password){
-    let passwordcheck = await db.query("SELECT password FROM users WHERE email = $1", 
-        [email]
-    );
-    if(passwordcheck.rows[0] == password){
-        let user =await db.query("SELECT * from users WHERE email = $1", [email]);
-        Session(user) = user.rows[0]
-    }
-    else{
-        console.log("User does not exist");
-    } 
-}*/
 
 //load main page
 app.get("/", ensureAuthenticated, async (req, res) => {
@@ -246,24 +223,6 @@ app.get("/register", (req, res) => {
   res.render("register.ejs");
 });
 
-//load profile page
-// app.get("/profile", async (req, res) => {
-//   if (req.isAuthenticated()) {
-//     try {
-//       console.log(req.user);
-//       const reviews = await getUserReviews(req.user.id);
-//       res.render("profile.ejs", {
-//         user: req.user,
-//         reviews: reviews,
-//       });
-//     } catch (err) {
-//       console.log(err);
-//     }
-//   } else {
-//     res.redirect("/login");
-//   }
-// });
-
 //add user
 app.post("/register", async (req, res) => {
   let name = req.body.name;
@@ -299,15 +258,6 @@ app.post("/register", async (req, res) => {
     console.log(err);
   }
 });
-
-//user login
-// app.post(
-//   "/login",
-//   passport.authenticate("local", {
-//     successRedirect: "/profile",
-//     failureRedirect: "/login",
-//   })
-// );
 
 //user register
 app.post("/logout", async (req, res) => {
@@ -364,17 +314,6 @@ app.post("/deleteAccount", async (req, res) => {
   res.redirect("/");
 });
 
-/*get user reviews
-app.post("/getUserReviews", async (req,res) => {
-    const reviews = await getUserReviews(req.user.id);
-    if(reviews.rowCount = 0){
-
-    }
-    else{
-        res.render()
-    }
-})*/
-
 //add review
 app.post("/addReview", async (req, res) => {
   if (req.isAuthenticated()) {
@@ -403,16 +342,17 @@ app.post("/addReview", async (req, res) => {
 });
 
 //order reviews
-app.post("/sort", async (req, res) => {
-  let field = req.body.field;
-  let order = req.body.order;
+app.post("/sort", ensureAuthenticated, async (req, res) => {
+  const { field, order } = req.body;
+
   try {
-    let reviews = await sortReviews(field, order);
+    const reviews = await sortReviews(req.user.id, field, order);
     res.render("index.ejs", {
-      reviews: reviews.rows,
+      reviews: reviews,
     });
   } catch (err) {
     console.log(err);
+    res.redirect("/");
   }
 });
 
@@ -428,8 +368,7 @@ app.post("/delete/:id", ensureAuthenticated, async (req, res) => {
   res.redirect("/");
 });
 
-//edit specific psot function
-//edit specific post (OWNER ONLY)
+//edit specific post
 app.post("/edit/:id", ensureAuthenticated, async (req, res) => {
   const review = await getReview(req.params.id);
 
@@ -443,54 +382,6 @@ app.post("/edit/:id", ensureAuthenticated, async (req, res) => {
   await editReview(title, description, notes, isbn, image, req.params.id);
   res.redirect(`/review/${req.params.id}`);
 });
-
-//authenticating session
-// passport.use(
-//   new Strategy(
-//     {
-//       usernameField: "email", // Set username field to 'email'
-//       passwordField: "password",
-//     },
-//     async (email, password, cb) => {
-//       try {
-//         const result = await db.query("SELECT * FROM users WHERE email = $1", [
-//           email,
-//         ]);
-
-//         if (result.rows.length > 0) {
-//           const user = result.rows[0];
-//           console.log(user);
-//           console.log(password);
-//           bcrypt.compare(password, user.password, (err, valid) => {
-//             if (err) {
-//               console.error("Error comparing passwords:", err);
-//               return cb(err);
-//             } else {
-//               console.log(valid);
-//               if (valid) {
-//                 return cb(null, user);
-//               } else {
-//                 return cb(null, false);
-//               }
-//             }
-//           });
-//         } else {
-//           return cb(null, false); // User not found
-//         }
-//       } catch (err) {
-//         return cb(err);
-//       }
-//     }
-//   )
-// );
-
-// passport.serializeUser((user, cb) => {
-//   cb(null, user);
-// });
-
-// passport.deserializeUser((user, cb) => {
-//   cb(null, user);
-// });
 
 // Passport Local Strategy for authentication
 passport.use(
